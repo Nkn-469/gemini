@@ -1,0 +1,8 @@
+torch
+diffusers
+transformers
+accelerate
+google-generativeai
+python-dotenv
+openai-whisper
+moviepy
