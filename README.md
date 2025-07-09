@@ -90,7 +90,7 @@
 #### ライブラリインストール
 - ```pip install -U openai-whisper```
 - ```pip install moviepy```
-- [ffmpeg](https://ffmpeg.org/download.html)を入れる
+- [ffmpeg](https://ffmpeg.org/download.html)を入れる</br>
   ・入れた後```ffmpeg -version```をターミナルで確認して出てればよい
 
 ### 操作方法
