@@ -73,7 +73,7 @@
 
 ## gemnerate_image.pyの一覧
 
-#### ライブラリインストール方法
+### ライブラリインストール方法
 - requirements.txtを入れる
 - その後ターミナルでcdコマンドでgenerate_image.pyとrequirements.txtがあるフォルダに移動
   （例）cd path\to\your\gemini-env
@@ -120,14 +120,82 @@
 
 ## gemini_Whissperの一覧
 
-#### ライブラリインストール
+### ライブラリインストール
 - ```pip install -U openai-whisper```
 - ```pip install moviepy```
 - [ffmpeg](https://ffmpeg.org/download.html)を入れる</br>
   ・入れた後```ffmpeg -version```をターミナルで確認して出てればよい
 
-### 操作方法
+### 概要
+- Whisperを使って動画ファイルや音声ファイルから日本語の文字おこしするため
 - **AudioTranscripts**に動画で音としてでてた内容を文字として保存する
 - 保存先を変更する場合は```--output```または```-O```できる
-- 動画の保存して選ぶやつはmp4っていうフォルダ
+- mp4フォルダに動画あればファイル名の指定だけでできる
 
+### コード説明
+
+#### moviepyのインポートとエラーチェック
+```
+try:
+    from moviepy import VideoFileClip
+except ImportError:
+    print("❌ エラー: 'moviepy'ライブラリが見つかりません。", file=sys.stderr)
+    print("💡 ヒント: 'pip install moviepy' を実行してインストールしてください。", file=sys.stderr)
+    sys.exit(1)
+```
+- ```moviepy```は動画処理ライブラリで音声を抽出するために
+- ```try-except```はmoviepyがインポートできなかったら、エラーメッセージを表示してプログラムを終了する。
+
+#### Whisperモデルのロードと文字起こし
+
+```
+print(f"🔄 モデル '{model_name}' をロードしています...")
+model = whisper.load_model(model_name)
+print(f"🎤 '{os.path.basename(media_path)}' の文字起こしを開始します... (これには時間がかかる場合があります)")
+result = model.transcribe(audio_path_to_transcribe, language="ja", fp16=False)
+```
+- Whisperモデルをロードし、音声ファイルを```language="ja"```は日本語で文字起こしを行う
+- ```fp16=False```は、CPUで実行する際に精度を安定させるオプション
+
+#### main関数の処理
+
+```
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Whisperで音声ファイルや動画ファイルを文字起こしします。")
+    parser.add_argument("media_file", help="文字起こしする音声または動画ファイル。ファイル名のみ指定した場合、'mp4'フォルダ内を検索します。 (例: 'my_video.mp4' または 'C:\\videos\\my_video.mp4')")
+    parser.add_argument("-m", "--model", default="base", choices=["tiny", "base", "small", "medium", "large"], help="使用するモデル")
+    parser.add_argument("-o", "--output", help="文字起こし結果を保存するテキストファイルのパス。指定しない場合、'AudioTranscripts'フォルダに自動で保存されます。")
+
+    args = parser.parse_args()
+```
+- ```argparse.ArgumentParser```を使って、コマンドライン引数を設定
+- ```media_file```は文字起こし対象の音声または動画ファイルをする
+- ```-m```/```--model```は使用するWhisperのモデル
+- ```-o```/```--output```は文字起こし結果を保存するファイルパス
+
+#### 入力ファイルと出力ファイルのパスを解決
+```
+input_media_path = args.media_file
+if not os.path.isabs(input_media_path) and os.path.basename(input_media_path) == input_media_path:
+    potential_path = os.path.join(script_dir, "mp4", input_media_path)
+    if os.path.exists(potential_path):
+        input_media_path = potential_path
+        print(f"ℹ️ 'mp4'フォルダからファイル '{os.path.basename(input_media_path)}' を読み込みます。")
+```
+- 入力されたファイルパスが相対パスであった場合、スクリプトがあるディレクトリの```mp4```フォルダ内を検索してファイルを見つける
+```
+output_path = args.output
+if output_path is None:
+    save_folder = os.path.join(script_dir, "AudioTranscripts")
+    os.makedirs(save_folder, exist_ok=True)
+    base_filename = os.path.basename(input_media_path)
+    filename_without_ext = os.path.splitext(base_filename)[0]
+    output_filename = f"{filename_without_ext}.txt"
+    output_path = os.path.join(save_folder, output_filename)
+```
+- 出力ファイルのパスが指定されていない場合、```AudioTranscripts```フォルダに自動でファイルを保存する。
+#### メイン処理の実行
+```
+transcribe_media(input_media_path, args.model, output_path)
+```
+- ```transcribe_media```関数を呼び出して、実際の文字起こしを行う
