@@ -88,9 +88,45 @@
   （例）```python generate_image.py -o my_creations```
   
 ### コード説明
-- ```def generate_enhanced_prompts(user_prompt: str, gemini_model) -> tuple[str, str]:```【日本語入力対応させるため】
-- ```def generate_and_save_image(pipe, prompt: str, negative_prompt: str, save_folder: str):```【Stable Diffusion パイプラインにプロンプトを渡して画像を生成し、保存する。】
 
+#### generate_enhanced_prompts
+```
+def generate_enhanced_prompts(user_prompt: str, gemini_model) -> tuple[str, str]:
+    """
+    Geminiを使用して、ユーザーの簡単なプロンプトを詳細な英語のプロンプトとネガティブプロンプトに変換します。
+    """
+    # Geminiによるプロンプト強化処理
+```
+- ```instruction```で、Geminiモデルに渡すプロンプトの内容を準備し、このプロンプトは、ユーザーの入力に基づいて高品質な画像生成用の詳細なプロンプトを生成するようGeminiに指示している
+- ```gemini_model.generate_content(instruction)``` を使ってGeminiモデルに指示を送る
+- Geminiからの返答はJSON形式で、これを解析し、プロンプトとネガティブプロンプトを抽出する
+
+#### generate_and_save_image
+```
+def generate_and_save_image(pipe, prompt: str, negative_prompt: str, save_folder: str):
+    """
+    ロード済みのStable Diffusionパイプラインを使用して画像を生成し、指定されたフォルダに保存します。
+    """
+    # Stable Diffusionで画像を生成し保存する処理
+```
+- ```ipe(prompt, negative_prompt=negative_prompt) ```の部分で、Stable Diffusionモデルにプロンプトとネガティブプロンプトを渡して画像を生成する
+- ```datetime.now().strftime("%Y%m%d_%H%M%S")```とプロンプトに基づいて生成されます。これにより、生成された画像が名前で保存する。
+
+#### main
+```
+def main():
+    """スクリプトのメイン処理"""
+    load_dotenv()  # .envファイルから環境変数を読み込む
+    parser = argparse.ArgumentParser(
+        description="Stable Diffusionを使って対話形式で画像を生成し、保存します。",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    # コマンドライン引数の設定
+```
+- ```load_dotenv() ```を使って.envファイルからAPIキーやその他の設定を読み込む
+- ```argparse```ライブラリを使って、コマンドライン引数を設定する
+- ```GOOGLE_API_KEY```が設定されている場合、Gemini APIを初期化し、プロンプト強化機能を有効にする
+- ```StableDiffusionPipeline.from_pretrained()```で、指定されたモデル（model_id）をロードする
 ------------------------------------------------------------------
 
 ## gemini_test.pyの一覧
@@ -113,8 +149,47 @@
 
 ### コード説明
 
-- ```def generate_enhanced_prompts(user_prompt: str, gemini_model) -> tuple[str, str]:```【Gemini APIを使って自然なプロンプトを作る。】
-- ```def generate_and_save_image(pipe, prompt: str, negative_prompt: str, save_folder: str):```【Stable Diffusionで画像を生成】
+#### APIキーの設定
+```
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        print("❌ エラー: 環境変数 'GOOGLE_API_KEY' が設定されていません。", file=sys.stderr)
+        print("💡 ヒント: .envファイルに GOOGLE_API_KEY='あなたのキー' を追加してください。", file=sys.stderr)
+        sys.exit(1)
+```
+- ```.env``` ファイルから ```GOOGLE_API_KEY``` を取得し、それが設定されていない場合はエラーメッセージを出力してプログラムを終了
+
+#### チャットセッションの開始
+```
+    try:
+        model = genai.GenerativeModel('gemini-1.0-pro')
+        # 会話履歴を保持するチャットセッションを開始
+        chat = model.start_chat(history=[])
+```
+- ```gemini-1.0-pro```という名前のGeminiモデルをロードし、```start_chat()```を呼び出してチャットセッションを開始する
+
+#### ユーザーとの対話ループ
+```
+        print("🤖 Geminiとの対話を開始します。(終了するには 'quit' または 'exit' と入力してください)")
+
+        while True:
+            prompt = input("You: ")
+
+            if prompt.lower() in ["quit", "exit"]:
+                print("\n👋 対話を終了します。")
+                break
+```
+- ユーザーと対話を続けるためのループが始まり、```quit```または```exit```と入力することで、対話を終了できる
+
+#### Gemini APIへのリクエストとレスポンス表示
+```
+            print("Gemini: ", end="", flush=True)
+            response = chat.send_message(prompt, stream=True)
+            for chunk in response:
+                print(chunk.text, end="", flush=True)
+            print() # 改行
+```
+- ユーザーの入力を```chat.send_message()```メソッドを使ってGemini APIに送信し、そのレスポンスを受け取る
 
   -------------------------------------------------------------------------
 
