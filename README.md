@@ -73,6 +73,9 @@
 
 ## gemnerate_image.pyの一覧
 
+<img width="512" height="512" alt="20250708_174308_photorealistic, high quality, 黒い犬" src="https://github.com/user-attachments/assets/9c9d9b08-99d8-47c2-aa61-9a121d5feb2d" />
+
+
 ### ライブラリインストール方法
 - requirements.txtを入れる
 - その後ターミナルでcdコマンドでgenerate_image.pyとrequirements.txtがあるフォルダに移動
