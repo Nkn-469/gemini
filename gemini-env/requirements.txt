@@ -64,3 +64,4 @@ uritemplate==4.2.0
 urllib3==2.5.0
 uvicorn==0.34.3
 wsproto==1.2.0
+moviepy==2.2.1
