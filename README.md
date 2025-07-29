@@ -68,6 +68,7 @@
 - ```urllib3==2.5.0```【HTTP通信を行うための低レベルライブラリ】
 - ```uvicorn==0.34.3```【高性能なASGIサーバー】
 - ```wsproto==1.2.0```【WebSocketプロトコルを実装するライブラリ】
+- ```moviepy==2.2.1```【ython で動画を編集・作成するためのライブラリ】
 
 -----------------------------------------------------------------------
 
@@ -130,6 +131,50 @@ def main():
 - ```argparse```ライブラリを使って、コマンドライン引数を設定する
 - ```GOOGLE_API_KEY```が設定されている場合、Gemini APIを初期化し、プロンプト強化機能を有効にする
 - ```StableDiffusionPipeline.from_pretrained()```で、指定されたモデル（model_id）をロードする
+
+#### 必要なこと
+
+**1**.プロジェクトフォルダに移動し、仮想環境を作成する。
+
+```
+
+cd C:\Users\mitsuyuki-kurashiki\gemini-env
+python -m venv venv
+
+```
+
+**2**.2回目以降は毎回仮想環境を有効化する
+
+```
+
+.\venv\Scripts\Activate.ps1
+
+```
+
+**3**.Pythonライブラリをインストール
+
+```
+
+pip install torch diffusers transformers accelerate Pillow python-dotenv google-generativeai
+
+```
+
+#### APIキーの設定
+
+```
+
+GOOGLE_API_KEY=""
+
+```
+
+#### 起動コマンド
+
+```
+
+python generate_image.py
+
+```
+
 ------------------------------------------------------------------
 
 ## gemini_test.pyの一覧
@@ -193,6 +238,26 @@ def main():
             print() # 改行
 ```
 - ユーザーの入力を```chat.send_message()```メソッドを使ってGemini APIに送信し、そのレスポンスを受け取る
+
+#### 必要なこと
+
+- **1**.プロジェクトフォルダに移動し、仮想環境を作成する。
+
+```
+
+cd C:\Users\・・・・・\gemini-env
+python -m venv venv
+
+```
+
+**2**.2回目以降は毎回仮想環境を有効化する
+
+```
+
+.\venv\Scripts\Activate.ps1
+
+```
+
 
   -------------------------------------------------------------------------
 
@@ -277,3 +342,45 @@ if output_path is None:
 transcribe_media(input_media_path, args.model, output_path)
 ```
 - ```transcribe_media```関数を呼び出して、実際の文字起こしを行う
+
+#### やり方
+
+**1**.プロジェクトフォルダに移動し、仮想環境を作成する。
+
+```
+
+cd C:\Users\mitsuyuki-kurashiki\gemini-env
+python -m venv venv
+
+```
+
+**2**.2回目以降は毎回仮想環境を有効化する
+
+```
+
+.\venv\Scripts\Activate.ps1
+
+```
+
+**3**.ライブラリをインストールする 
+
+```
+
+pip install openai-whisper moviepy torch
+
+```
+
+**4**.requirements.txtのものをインストール
+
+```
+
+pip install -r requirements.txt
+
+```
+
+**5**.ffmpegインストール
+- (ffmpeg)[https://ffmpeg.org/download.html]公式サイトでダウンロード
+- ffmpegの解凍後、その保存した場所のパスを```FFMPEG_PATH=""```に追加する
+- ```.env```にあるAPIキーを自分のを入れる```GOOGLE_API_KEY=""```
+
+
