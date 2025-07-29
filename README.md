@@ -74,7 +74,12 @@
 
 ## gemnerate_image.pyの一覧
 
+- 成功例（黒い犬）
 <img width="512" height="512" alt="20250708_174308_photorealistic, high quality, 黒い犬" src="https://github.com/user-attachments/assets/9c9d9b08-99d8-47c2-aa61-9a121d5feb2d" />
+
+- 失敗例（白い犬）
+<img width="512" height="512" alt="20250709_113900_photorealistic, high quality, 白い犬" src="https://github.com/user-attachments/assets/5f478d65-b834-4633-ae53-ea9c64346f51" />
+
 
 
 ### ライブラリインストール方法
