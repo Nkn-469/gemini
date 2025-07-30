@@ -1,4 +1,4 @@
-# 説明欄
+# 説明
 
 ## requirements.txtのライブラリ一覧
 
